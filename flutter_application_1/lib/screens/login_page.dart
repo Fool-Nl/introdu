@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rive/rive.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,14 +9,70 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // control para mostrar u ocultar la contraseña
+  bool _obscureText = true;
+
   @override
   Widget build(BuildContext context) {
+    // Para obtener el tamaño de la pantalla
+    final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-      //evita que se quite espacio de la camara frontal
-      body: SafeArea(child: Column(
-        children:[Expanded(child:)]
-      )
-      )
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            children: [
+              SizedBox(
+                width:size.width ,
+                height:200 ,
+                child: RiveAnimation.asset(
+                  'assets/animated_login_bear.riv',
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  prefixIcon: const Icon(Icons.email),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              TextField(
+                obscureText: _obscureText,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
