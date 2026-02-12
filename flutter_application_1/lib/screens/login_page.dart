@@ -9,8 +9,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // control para mostrar u ocultar la contraseña
+
+  // Control para mostrar/ocultar la contraseña
   bool _obscureText = true;
+
+  //Crear el cerebro de la animación
+  StateMachineController? _controller;
+  //SMI: State Machine Input
+  SMIBool? _isChecking;
+  SMIBool? _isHandsUp;
+  SMIBool? _trigSuccess;
+  SMIBool? _trigFail;
 
   @override
   Widget build(BuildContext context) {
@@ -19,25 +28,54 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
+        // Evita que el contenido se superponga con el notch
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
               SizedBox(
-                width:size.width ,
-                height:200 ,
+                width:size.width,
+                height:200,
                 child: RiveAnimation.asset(
                   'assets/animated_login_bear.riv',
-                ),
-              ),
+                  stateMachines: ['Login Machine'],
+                  //Al inciar la anaimación
+                  onInit: (artboard){
+                    _controller = StateMachineController.fromArtboard(artboard, 
+                    'Login Machine',
+                    );
 
+                    //Verifica que inició bien
+                    if (_controller == null) return;
+                    //Agrega el controlador al tablero/escenario
+                    artboard.addController(_controller!);
+                    //Vincular variables
+                    _isChecking = _controller!.findSMI('isChecking');
+                    _isHandsUp = _controller!.findSMI('isHandsUp');
+                    _trigSuccess = _controller!.findSMI('trigSuccess');
+                    _trigFail = _controller!.findSMI('trigFail');
+                  },
+                  )
+                ),
+              // Para separación
               const SizedBox(height: 10),
 
               TextField(
+                onChanged:(value) {
+                  if (_isHandsUp != null){
+                     _isHandsUp!.change(false);
+
+                }
+                if (_isChecking == null ) return;
+                 _isChecking!.change(true);
+ 
+
+                },
                 decoration: InputDecoration(
                   hintText: 'Email',
                   prefixIcon: const Icon(Icons.email),
                   border: OutlineInputBorder(
+                    // Para redondear los bordes
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -46,6 +84,16 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
 
               TextField(
+                onChanged:(value) {
+                  if (_isChecking != null){
+                     _isChecking!.change(false);
+
+                }
+                if (_isHandsUp == null ) return;
+                 _isHandsUp!.change(true);
+ 
+
+                },
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   hintText: 'Password',
@@ -57,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           : Icons.visibility,
                     ),
                     onPressed: () {
+                      //Refresca el icono
                       setState(() {
                         _obscureText = !_obscureText;
                       });
@@ -67,8 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 10),
             ],
           ),
         ),
