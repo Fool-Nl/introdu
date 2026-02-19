@@ -20,6 +20,26 @@ class _LoginScreenState extends State<LoginScreen> {
   SMIBool? _isHandsUp;
   SMIBool? _trigSuccess;
   SMIBool? _trigFail;
+  //1) CREAR VARIABLES PARA FOCUSnode
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  //2) listeners para focusnode (oyentes o los chismosos)
+  @override
+  void initState() {
+    super.initState();
+    _emailFocusNode.addListener(() {
+      if (_emailFocusNode.hasFocus) {
+          if(_isHandsUp != null){
+            _isHandsUp!.change(false);
+          }
+      }
+    });
+    _passwordFocusNode.addListener((){
+      _isHandsUp?.change(_passwordFocusNode.hasFocus);
+    });
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +79,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               // Para separación
               const SizedBox(height: 10),
-
+              //textfield para email
               TextField(
+                //1.3 asignar focusnode a textfield
+                focusNode: _emailFocusNode,
                 onChanged:(value) {
                   if (_isHandsUp != null){
-                     _isHandsUp!.change(false);
+                     //_isHandsUp!.change(false);
 
                 }
                 if (_isChecking == null ) return;
@@ -84,9 +106,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
 
               TextField(
+                //1.3 asignar focusnode a textfield de password
+                focusNode: _passwordFocusNode,
                 onChanged:(value) {
                   if (_isChecking != null){
-                     _isChecking!.change(false);
+                     //_isChecking!.change(false);
 
                 }
                 if (_isHandsUp == null ) return;
@@ -121,5 +145,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+  //1.4 liberar recursos al salir de la pantalla
+  @override
+  void dispose() {
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
   }
 }
