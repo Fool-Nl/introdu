@@ -5,6 +5,8 @@ The main character (a little bear) follows the user’s typing with its eyes,
 covers them for the password field and reacts to success/failure events.
 
 ---
+## Table 
+---
 
 ## 📝 Description
 

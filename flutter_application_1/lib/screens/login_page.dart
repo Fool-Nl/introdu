@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
+import 'dart:async';//3.1 importa el timer
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,9 +21,17 @@ class _LoginScreenState extends State<LoginScreen> {
   SMIBool? _isHandsUp;
   SMIBool? _trigSuccess;
   SMIBool? _trigFail;
+
+  //2.1 variable para el recorido de la mirada
+  SMINumber? _numLook;
+
   //1) CREAR VARIABLES PARA FOCUSnode
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+
+  //3.2) variable para detener la mirada al dejar de escirbir
+  Timer? _typingDebounce;
+
 
   //2) listeners para focusnode (oyentes o los chismosos)
   @override
@@ -32,6 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_emailFocusNode.hasFocus) {
           if(_isHandsUp != null){
             _isHandsUp!.change(false);
+            //2.2 asignar
+            _numLook?.value = 50.0;
           }
       }
     });
@@ -74,6 +85,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     _isHandsUp = _controller!.findSMI('isHandsUp');
                     _trigSuccess = _controller!.findSMI('trigSuccess');
                     _trigFail = _controller!.findSMI('trigFail');
+                    //2.3 vincular variable para el recorrido de la mirada
+                    _numLook = _controller!.findSMI('numLook');
                   },
                   )
                 ),
@@ -87,11 +100,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (_isHandsUp != null){
                      //_isHandsUp!.change(false);
 
+
                 }
                 if (_isChecking == null ) return;
                  _isChecking!.change(true);
- 
+                 //2.4 implementar numLook para el recorrido de la mirada
+                 //ajustes de limite de 0 a 100
+                 //80 como medida de calibracion
+                  final look = (value.length / 80.0 * 100)
+                  .clamp(0.0, 100.0);//limita el rango(abrazadera)
+                  _numLook?.value = look;
 
+                //3.3 Debounce si vuelve a teclear reinicia el contador
+                //cancelar cualquier timer activo
+                _typingDebounce?.cancel();
+                _typingDebounce = Timer(
+                  const Duration(seconds: 3), () {
+                    //si se cierra la pantalla, quita el contador
+                    if (!mounted) return;
+                     //mirada neutra
+                     _isChecking?.change(false);
+                    //Timer
+                    
+                  }
+                );
+
+                 
                 },
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -151,6 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
+    _typingDebounce?.cancel();
     super.dispose();
   }
 }
